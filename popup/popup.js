@@ -1,24 +1,34 @@
-// popup/popup.js
+// popup.js
 
 document.addEventListener('DOMContentLoaded', () => {
     const wordList = document.getElementById('wordList');
   
-    // Get all tabs
-    chrome.tabs.query({}, (tabs) => {
+    // Get all tabs with URLs matching http or https
+    chrome.tabs.query({ url: ['http://*/*', 'https://*/*'] }, (tabs) => {
       tabs.forEach((tab) => {
-        // Request the highest frequency word for each tab from the background script
-        chrome.runtime.sendMessage({ type: "getWordForTab", tabId: tab.id }, (response) => {
-          const word = response && response.word ? response.word : 'No words found';
+        // Send a message to the content script in each tab
+        chrome.tabs.sendMessage(
+          tab.id,
+          { type: 'getHighestFreqWord' },
+          (response) => {
+            let word = 'No words found';
+            if (chrome.runtime.lastError) {
+              // Optionally handle the error
+              // console.warn(`Cannot access tab ${tab.id}: ${chrome.runtime.lastError.message}`);
+            } else if (response && response.word) {
+              word = response.word;
+            }
   
-          // Create a div to display the tab title and word
-          const item = document.createElement('div');
-          item.className = 'tab-item';
-          item.innerHTML = `
-            <div class="tab-title">${tab.title}</div>
-            <div class="tab-word">${word}</div>
-          `;
-          wordList.appendChild(item);
-        });
+            // Create a div to display the tab title and word
+            const item = document.createElement('div');
+            item.className = 'tab-item';
+            item.innerHTML = `
+              <div class="tab-title">${tab.title}</div>
+              <div class="tab-word">${word}</div>
+            `;
+            wordList.appendChild(item);
+          }
+        );
       });
     });
   });

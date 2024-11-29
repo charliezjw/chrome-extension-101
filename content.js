@@ -1,5 +1,8 @@
 // content.js
 
+// Variable to store the highest frequency word
+let highestFreqWord = null;
+
 // Function to calculate the highest frequency word
 function getHighestFrequencyWord() {
   // Get all the text content from the page
@@ -12,7 +15,6 @@ function getHighestFrequencyWord() {
   // Count the frequency of each word
   const frequency = {};
   let maxFreq = 0;
-  let maxWord = null;
 
   for (const word of words) {
     frequency[word] = (frequency[word] || 0) + 1;
@@ -20,21 +22,21 @@ function getHighestFrequencyWord() {
     // Keep track of the word with the highest frequency
     if (frequency[word] > maxFreq) {
       maxFreq = frequency[word];
-      maxWord = word;
+      highestFreqWord = word;
+      maxFreq = frequency[word];
     }
   }
 
-  return maxWord;
+  return highestFreqWord;
 }
 
-// Function to send the highest frequency word to the background script
-function sendHighestFrequencyWord() {
-  const highestFreqWord = getHighestFrequencyWord();
-  chrome.runtime.sendMessage({ type: "updateWord", word: highestFreqWord });
+// Function to update the highest frequency word
+function updateHighestFrequencyWord() {
+  highestFreqWord = getHighestFrequencyWord();
 }
 
-// Initial calculation and sending of the highest frequency word
-sendHighestFrequencyWord();
+// Initial calculation of the highest frequency word
+updateHighestFrequencyWord();
 
 // Set up a MutationObserver to watch for changes in the body content
 const observer = new MutationObserver(() => {
@@ -43,7 +45,7 @@ const observer = new MutationObserver(() => {
   observer.debouncing = true;
   setTimeout(() => {
     observer.debouncing = false;
-    sendHighestFrequencyWord();
+    updateHighestFrequencyWord();
   }, 1000); // Adjust the delay as needed
 });
 
@@ -52,4 +54,13 @@ observer.observe(document.body, {
   childList: true,
   subtree: true,
   characterData: true,
+});
+
+// Listen for messages from the popup script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'getHighestFreqWord') {
+    sendResponse({ word: highestFreqWord });
+  }
+  // Return true to indicate that the response will be sent asynchronously
+  return true;
 });
