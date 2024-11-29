@@ -23,5 +23,6 @@
       "js": ["content.js"],
       "run_at": "document_idle"
     }
-  ]
+  ],
+  "trial_tokens": ["AgFY1Vi21ZJujH5YOTfwtSZP57j/j8zNRfil7n6qVyvQ5ZZZfyYCxwtMZVuVnIrWFfjSgJfJuk6EQ1PaXqcTVQsAAABzeyJvcmlnaW4iOiJjaHJvbWUtZXh0ZW5zaW9uOi8vZmtwYmFiYmlhbGNqbnBqamZwbmFraHBhYWZja2phbmUiLCJmZWF0dXJlIjoiQUlTdW1tYXJpemF0aW9uQVBJIiwiZXhwaXJ5IjoxNzUzMTQyNDAwfQ=="]
 }
